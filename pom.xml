@@ -6,7 +6,11 @@
 
     <groupId>io.github.blaspat</groupId>
     <artifactId>resilient-redis-lettuce-client</artifactId>
+    <name>resilient-redis-lettuce-client</name>
     <version>1.0.0</version>
+    <description>Resilient Redis Java client</description>
+    <url>https://github.com/blaspat/resilient-redis-client</url>
+    <packaging>jar</packaging>
 
     <properties>
         <java.version>1.8</java.version>
