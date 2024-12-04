@@ -16,9 +16,14 @@
 
 package io.github.blaspat;
 
+import io.lettuce.core.RedisCommandExecutionException;
+import io.lettuce.core.RedisCommandInterruptedException;
+import io.lettuce.core.RedisCommandTimeoutException;
+import io.lettuce.core.RedisConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
+import org.springframework.dao.DataAccessException;
 
 import java.util.concurrent.Callable;
 
@@ -34,7 +39,13 @@ public class ResilientCacheDecorator implements Cache {
     public ValueWrapper get(Object key) {
         try {
             return delegate.get(key);
-        } catch (Exception e) {
+        } catch (RedisConnectionException |
+                 RedisCommandTimeoutException |
+                 RedisCommandExecutionException |
+                 DataAccessException |
+                 RedisCommandInterruptedException
+                e  )
+        {
             logger.error("Cache retrieval error: " + e.getMessage());
             return null;
         }
@@ -44,7 +55,13 @@ public class ResilientCacheDecorator implements Cache {
     public <T> T get(Object key, Class<T> type) {
         try {
             return delegate.get(key, type);
-        } catch (Exception e) {
+        } catch (RedisConnectionException |
+                 RedisCommandTimeoutException |
+                 RedisCommandExecutionException |
+                 DataAccessException |
+                 RedisCommandInterruptedException
+                e  )
+        {
             logger.error("Cache retrieval error: " + e.getMessage());
             return null;
         }
@@ -54,7 +71,13 @@ public class ResilientCacheDecorator implements Cache {
     public <T> T get(Object key, Callable<T> valueLoader) {
         try {
             return delegate.get(key, valueLoader);
-        } catch (Exception e) {
+        } catch (RedisConnectionException |
+                 RedisCommandTimeoutException |
+                 RedisCommandExecutionException |
+                 DataAccessException |
+                 RedisCommandInterruptedException
+                e  )
+        {
             logger.error("Cache retrieval error: " + e.getMessage());
             return null;
         }
@@ -64,7 +87,13 @@ public class ResilientCacheDecorator implements Cache {
     public void put(Object key, Object value) {
         try {
             delegate.put(key, value);
-        } catch (Exception e) {
+        } catch (RedisConnectionException |
+                 RedisCommandTimeoutException |
+                 RedisCommandExecutionException |
+                 DataAccessException |
+                 RedisCommandInterruptedException
+                e  )
+        {
             logger.error("Cache put error: " + e.getMessage());
         }
     }
@@ -73,7 +102,13 @@ public class ResilientCacheDecorator implements Cache {
     public void evict(Object key) {
         try {
             delegate.evict(key);
-        } catch (Exception e) {
+        } catch (RedisConnectionException |
+                 RedisCommandTimeoutException |
+                 RedisCommandExecutionException |
+                 DataAccessException |
+                 RedisCommandInterruptedException
+                e  )
+        {
             logger.error("Cache eviction error: " + e.getMessage());
         }
     }
@@ -82,7 +117,13 @@ public class ResilientCacheDecorator implements Cache {
     public void clear() {
         try {
             delegate.clear();
-        } catch (Exception e) {
+        } catch (RedisConnectionException |
+                 RedisCommandTimeoutException |
+                 RedisCommandExecutionException |
+                 DataAccessException |
+                 RedisCommandInterruptedException
+                e  )
+        {
             logger.error("Cache clear error: " + e.getMessage());
         }
     }
