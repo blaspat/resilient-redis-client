@@ -1,0 +1,37 @@
+{
+  "properties": [
+    {
+      "name": "spring.redis.master.host",
+      "type": "java.lang.String",
+      "defaultValue": "localhost",
+      "description": "Redis master host."
+    },
+    {
+      "name": "spring.redis.master.port",
+      "type": "java.lang.Integer",
+      "defaultValue": "6379",
+      "description": "Redis master port."
+    },
+
+    {
+      "name": "spring.redis.replica.host",
+      "type": "java.lang.String",
+      "defaultValue": "localhost",
+      "description": "Redis replica host."
+    },
+    {
+      "name": "spring.redis.replica.port",
+      "type": "java.lang.Integer",
+      "defaultValue": "6380",
+      "description": "Redis replica port."
+    },
+
+    {
+      "name": "spring.redis.replica.enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "Redis replica enabled."
+    }
+
+  ]
+}
