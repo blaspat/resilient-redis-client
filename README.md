@@ -7,6 +7,8 @@ Resilient Java Redis Client is a robust, high-performance library for interactin
 Support **Java 8 or later**
 
 ## Updates
+* **1.0.2**
+  * Add new configuration to set non-locking batch size 
 * **1.0.1**
   * Handle only specific exception
     * `RedisConnectionException`
@@ -23,7 +25,7 @@ Support **Java 8 or later**
     <dependency>
         <groupId>io.github.blaspat</groupId>
         <artifactId>resilient-redis-lettuce-client</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
     </dependency>
 
 

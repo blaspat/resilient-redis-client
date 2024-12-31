@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.serializer.SerializationException;
 
 import java.util.concurrent.Callable;
 
@@ -48,6 +49,10 @@ public class ResilientCacheDecorator implements Cache {
         {
             logger.error("Cache retrieval error: " + e.getMessage());
             return null;
+        } catch (SerializationException ex) {
+            logger.debug("Cache retrieval error serialization for key {} : {}, cache evicted then returned", key, ex.getMessage());
+            this.evict(key);
+            return null;
         }
     }
 
@@ -64,6 +69,10 @@ public class ResilientCacheDecorator implements Cache {
         {
             logger.error("Cache retrieval error: " + e.getMessage());
             return null;
+        } catch (SerializationException ex) {
+            logger.debug("Cache retrieval error serialization for key {} : {}, cache evicted then returned", key, ex.getMessage());
+            this.evict(key);
+            return null;
         }
     }
 
@@ -79,6 +88,10 @@ public class ResilientCacheDecorator implements Cache {
                 e  )
         {
             logger.error("Cache retrieval error: " + e.getMessage());
+            return null;
+        } catch (SerializationException ex) {
+            logger.debug("Cache retrieval error serialization for key {} : {}, cache evicted then returned", key, ex.getMessage());
+            this.evict(key);
             return null;
         }
     }

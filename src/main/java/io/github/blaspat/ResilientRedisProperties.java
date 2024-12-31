@@ -31,6 +31,7 @@ public class ResilientRedisProperties extends RedisProperties {
     private Replica replica;
     private Duration timeout;
     private Duration connectTimeout;
+    private Integer batchSize;
 
     @Override
     public Duration getConnectTimeout() {
@@ -68,6 +69,15 @@ public class ResilientRedisProperties extends RedisProperties {
 
     public void setReplica(Replica replica) {
         this.replica = replica;
+    }
+
+    public Integer getBatchSize() {
+        if (batchSize == null) return 1000;
+        return batchSize;
+    }
+
+    public void setBatchSize(Integer batchSize) {
+        this.batchSize = batchSize;
     }
 
     public static class Master {

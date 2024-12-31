@@ -1,6 +1,12 @@
 {
   "properties": [
     {
+      "name": "spring.redis.batch-size",
+      "type": "java.lang.Integer",
+      "defaultValue": "1000",
+      "description": "Redis non-locking batch size."
+    },
+    {
       "name": "spring.redis.master.host",
       "type": "java.lang.String",
       "defaultValue": "localhost",

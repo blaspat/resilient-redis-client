@@ -30,6 +30,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.redis.cache.BatchStrategies;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -112,7 +113,7 @@ public class ResilientRedisConfig {
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         Map<String, RedisCacheConfiguration> map = new HashMap<>();
         return new ResilientRedisCacheManager(
-                RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory),
+                RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory, BatchStrategies.scan(resilientRedisProperties.getBatchSize())),
                 RedisCacheConfiguration.defaultCacheConfig(),
                 map
         );
