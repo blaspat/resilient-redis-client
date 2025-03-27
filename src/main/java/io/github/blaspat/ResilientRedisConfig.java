@@ -109,6 +109,11 @@ public class ResilientRedisConfig {
     }
 
     @Bean
+    public ResilientRedisTemplate<String, Object> resilientRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
+        return new ResilientRedisTemplate<>(redisTemplate);
+    }
+
+    @Bean
     @ConditionalOnMissingBean(CacheManager.class)
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         Map<String, RedisCacheConfiguration> map = new HashMap<>();
