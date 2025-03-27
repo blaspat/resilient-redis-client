@@ -7,14 +7,16 @@ Resilient Java Redis Client is a robust, high-performance library for interactin
 ## Key Features:
 * Error Handling
   * Automatically manages Redis server errors, serialization errors, and connection issues.
-* `@Cacheable` and `@CachePut` Compatibility
-  * Ensures that the use of @Cacheable annotations continues to work without breaking functionality, even if Redis is temporarily unavailable or misbehaving.
+* `@Cacheable`, `@CachePut`, and `@CacheEvict` Compatibility
+  * Ensures that the use of `@Cacheable` annotations continues to work without breaking functionality, even if Redis is temporarily unavailable or misbehaving.
 * Resilience Focus
   * Provides a robust caching mechanism that mitigates risks associated with Redis downtimes or failures, allowing your application to operate smoothly.
 
 Support **Java 8 or later**
 
 ## Updates
+* **1.0.3**
+  * Add `ResilientRedisTemplate`, a complementary class to RedisTemplate that provides additional resilience features.
 * **1.0.2**
   * Add new configuration to set non-locking batch size
   * Handle serialization error, if a serialization error occurs, methods using `@Cacheable` will continue to executed and won’t be stopped.
@@ -34,7 +36,7 @@ Support **Java 8 or later**
     <dependency>
         <groupId>io.github.blaspat</groupId>
         <artifactId>resilient-redis-lettuce-client</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </dependency>
 
 
