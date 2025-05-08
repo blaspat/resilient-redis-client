@@ -15,6 +15,8 @@ Resilient Java Redis Client is a robust, high-performance library for interactin
 Support **Java 8 or later**
 
 ## Updates
+* **1.0.4**
+  * Add `spring.factories`
 * **1.0.3**
   * Add `ResilientRedisTemplate`, a complementary class to RedisTemplate that provides additional resilience features.
 * **1.0.2**
