@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  publish:
+  publish-maven:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,14 +23,18 @@ jobs:
       - name: Import GPG key
         run: |
           echo "${{ secrets.MAVEN_GPG_KEY }}" | gpg --batch --pinentry-mode loopback --passphrase "${{ secrets.MAVEN_GPG_PASSPHRASE }}" --import
-      - name: Get version
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-      - name: Build and deploy
+      - name: Deploy to Maven Central
         run: mvn deploy -Dgpg.passphrase="${{ secrets.MAVEN_GPG_PASSPHRASE }}"
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+
+  publish-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
