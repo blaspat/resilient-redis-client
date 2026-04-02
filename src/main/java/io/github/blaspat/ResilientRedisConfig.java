@@ -19,6 +19,7 @@ package io.github.blaspat;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.SocketOptions;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +47,13 @@ import java.util.Map;
 @Configuration
 @EnableCaching
 public class ResilientRedisConfig {
+
     @Value("${version}")
     private String projectVersion;
     @Value("${artifactId}")
     private String projectId;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
     private final ResilientRedisProperties resilientRedisProperties;
 
     public ResilientRedisConfig(ResilientRedisProperties resilientRedisProperties) {
@@ -80,8 +81,12 @@ public class ResilientRedisConfig {
                     .readFrom(ReadFrom.REPLICA)
                     .build();
 
-            RedisStaticMasterReplicaConfiguration redisConfiguration = new RedisStaticMasterReplicaConfiguration(resilientRedisProperties.getMaster().getHost(), resilientRedisProperties.getMaster().getPort());
-            redisConfiguration.addNode(resilientRedisProperties.getReplica().getHost(), resilientRedisProperties.getReplica().getPort());
+            RedisStaticMasterReplicaConfiguration redisConfiguration = new RedisStaticMasterReplicaConfiguration(
+                    resilientRedisProperties.getMaster().getHost(),
+                    resilientRedisProperties.getMaster().getPort());
+            redisConfiguration.addNode(
+                    resilientRedisProperties.getReplica().getHost(),
+                    resilientRedisProperties.getReplica().getPort());
             return new LettuceConnectionFactory(redisConfiguration, clientConfig);
         } else {
             LettucePoolingClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
@@ -95,7 +100,9 @@ public class ResilientRedisConfig {
                     )
                     .build();
 
-            RedisStaticMasterReplicaConfiguration redisConfiguration = new RedisStaticMasterReplicaConfiguration(resilientRedisProperties.getMaster().getHost(), resilientRedisProperties.getMaster().getPort());
+            RedisStaticMasterReplicaConfiguration redisConfiguration = new RedisStaticMasterReplicaConfiguration(
+                    resilientRedisProperties.getMaster().getHost(),
+                    resilientRedisProperties.getMaster().getPort());
             return new LettuceConnectionFactory(redisConfiguration, clientConfig);
         }
     }
@@ -109,8 +116,50 @@ public class ResilientRedisConfig {
     }
 
     @Bean
-    public ResilientRedisTemplate<String, Object> resilientRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
-        return new ResilientRedisTemplate<>(redisTemplate);
+    @ConditionalOnMissingBean(name = "resilientRedisMetrics")
+    public ResilientRedisMetrics resilientRedisMetrics(MeterRegistry meterRegistry) {
+        return new ResilientRedisMetrics(meterRegistry);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "circuitBreakerManager")
+    public CircuitBreakerManager circuitBreakerManager() {
+        ResilientRedisProperties.CircuitBreaker cb = resilientRedisProperties.getCircuitBreakerConfig();
+        if (!cb.isEnabled()) {
+            return null;
+        }
+        return new CircuitBreakerManager(
+                cb.getFailureRateThreshold(),
+                cb.getSlowCallRateThreshold(),
+                cb.getSlowCallDurationThreshold(),
+                cb.getWaitDurationInOpenState(),
+                cb.getPermittedCallsInHalfOpenState(),
+                cb.getSlidingWindowSize(),
+                cb.getMinimumCalls()
+        );
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "retryManager")
+    public RetryManager retryManager() {
+        ResilientRedisProperties.Retry retry = resilientRedisProperties.getRetryConfig();
+        if (!retry.isEnabled()) {
+            return null;
+        }
+        return new RetryManager(
+                retry.getMaxAttempts(),
+                retry.getWaitDuration(),
+                retry.getMaxRetryDuration()
+        );
+    }
+
+    @Bean
+    public ResilientRedisTemplate<String, Object> resilientRedisTemplate(
+            RedisTemplate<String, Object> redisTemplate,
+            CircuitBreakerManager circuitBreakerManager,
+            RetryManager retryManager,
+            ResilientRedisMetrics resilientRedisMetrics) {
+        return new ResilientRedisTemplate<>(redisTemplate, circuitBreakerManager, retryManager, resilientRedisMetrics);
     }
 
     @Bean
@@ -126,6 +175,11 @@ public class ResilientRedisConfig {
 
     @EventListener(ApplicationReadyEvent.class)
     private void init() {
-        log.info("Running {} version {} with {} replica setting", projectId, projectVersion, resilientRedisProperties.getReplica().getEnabled());
+        log.info("Running {} version {} with replica={}, circuitBreaker={}, retry={}",
+                projectId,
+                projectVersion,
+                resilientRedisProperties.getReplica().getEnabled(),
+                resilientRedisProperties.getCircuitBreakerConfig().isEnabled(),
+                resilientRedisProperties.getRetryConfig().isEnabled());
     }
 }
